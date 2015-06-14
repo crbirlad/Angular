@@ -1,0 +1,12 @@
+.dts-target {
+	background-color: #E4D6D6; 
+	opacity: .9;	
+}
+
+.draggableDiv {
+	padding: 15px;
+}
+
+[draggable] {
+	cursor: move;
+}
