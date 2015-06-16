@@ -1,21 +1,24 @@
 <tabset>									
-	<tab ng-repeat="tab in tabs | orderBy:'order'" active="tab.active">
-		<tab-heading style="padding: none">	
-			<div dts-drop-object="true" dts-draggable="true" x-on-drop="dropped(dragEl, dropEl)"  id="{{$index}}" class="draggableDiv">
+	<tab ng-repeat="tab in tabs | orderBy:'order'" active="tab.active">		
+		<tab-heading>				
+			<div dts-drop-object="true" x-on-drop="dropped(dragEl, dropEl)" id="{{$index}}" class="headingDiv">
 				<span>{{tab.title}}</span>											
-				<a href="#" ng-click="tab.toEdit = true; editTab()">
+				<a href="#" ng-click="tab.toEdit = true; editTab()" class="iconSeparator" ng-hide="tab.isPlaceholder">
 					<span class="glyphicon glyphicon-edit"></span>										
 				</a>
-				<a href="#" ng-click="tab.toRemove = true; removeTab()" ng-show="tabs.length > 1">
+				<a href="#" ng-click="tab.toRemove = true; removeTab()" ng-show="tabs.length > 1" class="iconSeparator" ng-hide="tab.isPlaceholder">
 					<span class="glyphicon glyphicon-remove"></span>										
-				</a>																															
-			</div>																							
+				</a>				
+				<a href="{{tab.title}}" ng-click="" ng-show="tabs.length > 1" class="iconSeparator" dts-draggable="true" id="{{$index}}" ng-hide="tab.isPlaceholder">
+					<span class="glyphicon glyphicon-align-justify"></span>										
+				</a>				
+			</div>									
 		</tab-heading>
 		<div ng-include src="tab.content"></div>			
 	</tab>									
 	<tab select="addTab()" active="addActive">
 		<tab-heading>		
-			<div id="addDynamicTab" dts-drop-object="true"  dts-draggable="true" x-on-drop="dropped(dragEl, dropEl)" class="draggableDiv">
+			<div id="addDynamicTab" dts-drop-object="true"  dts-draggable="true" x-on-drop="dropped(dragEl, dropEl)" class="headingDiv">
 				<span class="glyphicon glyphicon-plus"></span>		
 			</div>
 		</tab-heading>      

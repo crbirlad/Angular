@@ -1,11 +1,16 @@
-.dts-target {
+/*.dts-target {
 	background-color: #E4D6D6; 
 	opacity: .9;	
+}*/
+
+.headingDiv {
+	padding: 10px;
 }
 
-.draggableDiv {
-	padding: 15px;
-}
+ .iconSeparator {
+ 	padding: 3px;
+ }
+
 
 [draggable] {
 	cursor: move;

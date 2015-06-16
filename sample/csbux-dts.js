@@ -13,13 +13,22 @@ module.directive('dtsDraggable', ['$rootScope', function($rootScope) {
 				}
 
 				el.bind("dragstart", function(e) {
-					//get the ID of the div being moved									
+					//get the ID of the tab being moved		
+					//Firefox workaround due to dragstart event not firing when drag component is a child of a link - which is always the case with the AngularUI Bootstrap component
+					//see http://forums.mozillazine.org/viewtopic.php?f=25&t=2822531 and http://stackoverflow.com/questions/23184362/firefox-dragstart-event-doesn-t-fire-in-hyperlink-s-children					
 					e.dataTransfer.setData('dragId', angular.element(el).attr("id"));
+					//$log.info(e.dataTransfer.getData('dragId'));
+					
 					//making the add tab behave as "dropabble" so we can drop tabs right before it
 					$rootScope.addDynamicTabEl.attr("draggable", "true");					
 					$rootScope.addDynamicTabEl.addClass("dts-target");
-					$rootScope.$emit("DTS-START-DRAG");
+
+					//add placeholders
+					$rootScope.tabs.push({title: "", content: "", active:false,toRemove:false,toEdit:false,order:0});
+
+					$rootScope.$emit("DTS-START-DRAG");					
 				});
+
 
 				el.bind("dragend", function(e) {
 					$rootScope.$emit("DTS-END-DRAG");
@@ -45,7 +54,7 @@ module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 					}
 
 					var targetElement = angular.element(e.target);					
-					while(!targetElement.hasClass("draggableDiv")) {
+					while(!targetElement.hasClass("headingDiv")) {
 						targetElement = targetElement.parent();					
 					}   
 
@@ -54,20 +63,19 @@ module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 					return false;
 				});
 
-				el.bind("dragenter", function(e) {		      
+				el.bind("dragenter", function(e) {					
 					var targetElement = angular.element(e.target);					
-					while(!targetElement.hasClass("draggableDiv")) {
+					while(!targetElement.hasClass("headingDiv")) {
 						targetElement = targetElement.parent();					
 					}        
 					
-					
-					targetElement.addClass("dts-over");												
+					targetElement.addClass("dts-over");								
 				});
 
 				el.bind("dragleave", function(e) {
 					//only remove style if another tab; if this is a component from the same tab, don't remove it
 					var targetElement = angular.element(e.target);					
-					while(!targetElement.hasClass("draggableDiv")) {
+					while(!targetElement.hasClass("headingDiv")) {
 						targetElement = targetElement.parent();					
 					}   
 
@@ -85,7 +93,7 @@ module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 
 					var dropId = angular.element(el).attr("id");
 					var dragId = e.dataTransfer.getData("dragId");
-					
+
 					//only perform the drag-n-drop moves if the divs are different
 					if(dragId != dropId) {
 						scope.onDrop({dragEl: dragId, dropEl: dropId});		                
@@ -139,6 +147,7 @@ module.directive('csbuxDts', ['$sce', '$modal', function($sce, $modal) {
 			tabs: '=dts'
 		},
 		controller: function($scope) {
+
 			$scope.dropped = function(dragEl, dropEl) {       
 				$scope.dragEl = dragEl;
 				$scope.dropEl = dropEl;
