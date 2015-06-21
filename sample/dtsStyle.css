@@ -1,16 +1,16 @@
-/*.dts-target {
+.dts-target {
 	background-color: #E4D6D6; 
 	opacity: .9;	
-}*/
+}
 
-.headingDiv {
+.inlineDiv {
+	display: inline;
 	padding: 10px;
 }
 
  .iconSeparator {
  	padding: 3px;
  }
-
 
 [draggable] {
 	cursor: move;

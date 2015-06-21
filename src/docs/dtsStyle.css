@@ -3,9 +3,14 @@
 	opacity: .9;	
 }
 
-.draggableDiv {
-	padding: 15px;
+.inlineDiv {
+	display: inline;
+	padding: 10px;
 }
+
+ .iconSeparator {
+ 	padding: 3px;
+ }
 
 [draggable] {
 	cursor: move;

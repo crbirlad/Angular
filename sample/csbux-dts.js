@@ -8,23 +8,15 @@ module.directive('dtsDraggable', ['$rootScope', function($rootScope) {
 			angular.element(document).ready(function () {
 				if("addDynamicTab" != angular.element(el).attr("id")) {					
 					angular.element(el).attr("draggable", "true");
-				} else {
-					$rootScope.addDynamicTabEl = angular.element(el);				
-				}
+				} 
 
 				el.bind("dragstart", function(e) {
 					//get the ID of the tab being moved		
 					//Firefox workaround due to dragstart event not firing when drag component is a child of a link - which is always the case with the AngularUI Bootstrap component
 					//see http://forums.mozillazine.org/viewtopic.php?f=25&t=2822531 and http://stackoverflow.com/questions/23184362/firefox-dragstart-event-doesn-t-fire-in-hyperlink-s-children					
+					e.dataTransfer.effectAllowed = "move";
 					e.dataTransfer.setData('dragId', angular.element(el).attr("id"));
-					//$log.info(e.dataTransfer.getData('dragId'));
-					
-					//making the add tab behave as "dropabble" so we can drop tabs right before it
-					$rootScope.addDynamicTabEl.attr("draggable", "true");					
-					$rootScope.addDynamicTabEl.addClass("dts-target");
-
-					//add placeholders
-					$rootScope.tabs.push({title: "", content: "", active:false,toRemove:false,toEdit:false,order:0});
+					localStorage["dtsDragId"] = angular.element(el).attr("id");									
 
 					$rootScope.$emit("DTS-START-DRAG");					
 				});
@@ -41,45 +33,55 @@ module.directive('dtsDraggable', ['$rootScope', function($rootScope) {
 module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 	return {
 		restrict: 'A',
-		scope: {
-			onDrop: '&'
+		scope: {			
+			onDrag: '&'
 		},
 		link: function(scope, el, attrs, controller) {
 			angular.element(document).ready(function () {
-				var hoveredTabId = null;				
+				$rootScope.enteredTabId = null;				
 
 				el.bind("dragover", function(e) {
 					if (e.preventDefault) {
 						e.preventDefault(); 
 					}
 
-					var targetElement = angular.element(e.target);					
-					while(!targetElement.hasClass("headingDiv")) {
-						targetElement = targetElement.parent();					
-					}   
-
-					hoveredTabId = angular.element(targetElement).attr("id");
-					e.dataTransfer.dropEffect = 'move';
+					
 					return false;
 				});
 
-				el.bind("dragenter", function(e) {					
-					var targetElement = angular.element(e.target);					
-					while(!targetElement.hasClass("headingDiv")) {
-						targetElement = targetElement.parent();					
-					}        
-					
-					targetElement.addClass("dts-over");								
+				el.bind("dragenter", function(e) {	
+					if (e.preventDefault) {
+						e.preventDefault();
+					}
+
+					if (e.stopPropagation) {
+						e.stopPropagation();
+					}
+
+					//if directly on the drop div
+					var newId = angular.element(e.target).attr("id");
+
+					//if on the plus span (add tab)
+					if(!newId) {
+						newId = angular.element(e.target).parent().attr("id");
+					}
+
+					//if on the tab title (any other tab)
+					if(!newId) {
+						newId = angular.element(e.target).parent().attr("id");
+					}
+
+					//DnD data not available in dragenter/dragleave/etc due to protected mode so we need to use the HTML5 Local Storage API
+					//see http://stackoverflow.com/questions/11927309/html5-dnd-datatransfer-setdata-or-getdata-not-working-in-every-browser-except-fi
+
+					if(newId && newId != $rootScope.enteredTabId && newId != localStorage["dtsDragId"]) {
+						$rootScope.enteredTabId = newId;								
+						scope.onDrag({dragEl: localStorage["dtsDragId"], dropEl: $rootScope.enteredTabId});		                
+					}
 				});
 
 				el.bind("dragleave", function(e) {
-					//only remove style if another tab; if this is a component from the same tab, don't remove it
-					var targetElement = angular.element(e.target);					
-					while(!targetElement.hasClass("headingDiv")) {
-						targetElement = targetElement.parent();					
-					}   
-
-					angular.element(e.target).removeClass('dts-over');					
+					
 				});
 
 				el.bind("drop", function(e) {
@@ -91,14 +93,6 @@ module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 						e.stopPropagation();
 					}
 
-					var dropId = angular.element(el).attr("id");
-					var dragId = e.dataTransfer.getData("dragId");
-
-					//only perform the drag-n-drop moves if the divs are different
-					if(dragId != dropId) {
-						scope.onDrop({dragEl: dragId, dropEl: dropId});		                
-					}						
-
 					$rootScope.$emit("DTS-END-DRAG");
 				});
 
@@ -107,12 +101,7 @@ module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 				});
 
 				$rootScope.$on("DTS-END-DRAG", function() {		            	
-					angular.element(el).removeClass("dts-target");
-					angular.element(el).removeClass("dts-over");
-
-					//removing the style from the add tab too
-					$rootScope.addDynamicTabEl.removeClass("dts-target");
-					$rootScope.addDynamicTabEl.removeAttr("draggable");
+					angular.element(el).removeClass("dts-target");					
 				});
 			});
 }
@@ -148,65 +137,27 @@ module.directive('csbuxDts', ['$sce', '$modal', function($sce, $modal) {
 		},
 		controller: function($scope) {
 
-			$scope.dropped = function(dragEl, dropEl) {       
+			$scope.dragged = function(dragEl, dropEl) {       
 				$scope.dragEl = dragEl;
 				$scope.dropEl = dropEl;
 
 				$scope.$apply(function () {
-					$scope.oldDrag = $scope.tabs[$scope.dragEl];  
-					$scope.oldDrop = $scope.tabs[$scope.dropEl];  
+					$scope.dragTabOrder = $scope.tabs[$scope.dragEl].order;
 
-					var reorder = false;
-
-					//reverse the order
-					if("addDynamicTab" != $scope.dropEl) {
-						var initialOrder = $scope.tabs[$scope.dropEl].order;
-						$scope.tabs[$scope.dropEl].order = $scope.tabs[$scope.dropEl].order + 1;
-						$scope.tabs[$scope.dragEl].order = initialOrder;
-
-						reorder = true;
-					} else {
-						var dragOrder = $scope.tabs[$scope.dragEl].order;
-						var lastOrder = $scope.tabs[$scope.tabs.length-1].order;
-						if(dragOrder < lastOrder) {						
-							angular.forEach($scope.tabs, function(tab, index) {                         
-								if(tab.order > dragOrder) {
-									tab.order--;
-								}
-							});
-							
-							$scope.tabs[$scope.dragEl].order = lastOrder;
-							
-							reorder = true;
+					$scope.tabs[$scope.dragEl].order = $scope.tabs[$scope.dropEl].order;
+					$scope.tabs[$scope.dropEl].order = $scope.dragTabOrder;
+					localStorage["dtsDragId"] = parseInt(localStorage["dtsDragId"]) + parseInt($scope.dropEl)-parseInt($scope.dragEl);
+					
+					angular.forEach($scope.tabs, function(tab, index) {                         
+						tab.active = false;
+						if(tab.order == $scope.tabs[$scope.dragEl].order) {
+							tab.active = true;
 						}
+					});
 
-					}
-
-					//another way is to drag-n-drop by reversing elements and removing/adding elements back in
-					/*if(dropEl < dragEl) {												
-						$scope.tabs.splice($scope.dropEl,1);
-						$scope.tabs.splice($scope.dragEl-1,1);  
-					} else {						
-						$scope.tabs.splice($scope.dragEl,1);
-						$scope.tabs.splice($scope.dropEl-1,1);  
-						$scope.selectedTabIndex = $scope.oldDrop.order;
-					}
-					$scope.tabs.splice($scope.dropEl,0, {title: $scope.oldDrag.title, content: $scope.oldDrag.content, active:true,toRemove:false,toEdit:false,order:$scope.oldDrop.order});  
-					$scope.tabs.splice($scope.dragEl,0, {title: $scope.oldDrop.title, content: $scope.oldDrop.content, active:true,toRemove:false,toEdit:false,order:$scope.oldDrag.order});  */
-
-
-					if(reorder) {
-						angular.forEach($scope.tabs, function(tab, index) {                         
-							tab.active = false;
-							if(tab.order == $scope.tabs[$scope.dragEl].order) {
-								tab.active = true;
-							}
-						});
-
-						$scope.tabs.sort(function(tabA, tabB) {
-							return tabA.order - tabB.order;
-						});
-					}
+					$scope.tabs.sort(function(tabA, tabB) {
+						return tabA.order - tabB.order;
+					});
 				});
 			};
 
