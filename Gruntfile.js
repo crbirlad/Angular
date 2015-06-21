@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         concat: {            
             dist: {
                     src: [
-                        "src/csbux-dts.js",                        
+                        "src/dts/csbux-dts.js",                        
                         "build/dts-tpl.js"
                     ],
                     dest: 'build/csbux-dts.min.js',
@@ -39,10 +39,10 @@ module.exports = function(grunt) {
         copy: {
           main: {
             files: [
-              { src: 'src/docs/index.html', dest:"build/index.html"},                            
-              { src: 'src/docs/script.js', dest:"build/script.js"},                            
-              { src: 'src/docs/dtsStyle.css', dest:"build/dtsStyle.css"},                            
-              { src: 'src/docs/templates/**', dest:"build/templates/", expand: true, flatten: true, filter:'isFile'},                            
+              { src: 'src/dts/docs/index.html', dest:"build/index.html"},                            
+              { src: 'src/dts/docs/script.js', dest:"build/script.js"},                            
+              { src: 'src/dts/docs/dtsStyle.css', dest:"build/dtsStyle.css"},                            
+              { src: 'src/dts/docs/templates/**', dest:"build/templates/", expand: true, flatten: true, filter:'isFile'},                            
             ],
           },
         },
