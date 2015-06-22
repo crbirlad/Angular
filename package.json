@@ -1,6 +1,7 @@
 {
   "name": "csbux",
-  "version": "1.0.0 (Targaryen)",
+  "version": "1.0.0",
+  "release": "Targaryen",
   "copyright": "Copyright (c) 2015 Cristian Birladeanu aka csbux, https://github.com/csbux/angular",
   "devDependencies": {
     "grunt": "^0.4.5",

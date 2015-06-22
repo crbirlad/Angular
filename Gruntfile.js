@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        csbuxBanner: '<%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>  <%= pkg.copyright %>',
+        csbuxBanner: '<%= pkg.name %> - v<%= pkg.version %> (<%= pkg.release %>) - <%= grunt.template.today("yyyy-mm-dd") %>  <%= pkg.copyright %>',
         ngtemplates: {
             myapp: {
                 options: {
@@ -67,6 +67,7 @@ module.exports = function(grunt) {
         // Deletes all .js files, but skips min.js files 
         clean: {
           all: ["build", "dist"],
+          build: ["build"],
           postBuild: ["build/*tpl.js", "build/*.concat.css"]
         }
 
