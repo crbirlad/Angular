@@ -4,6 +4,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
+        csbuxBanner: '<%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>  <%= pkg.copyright %>',
         ngtemplates: {
             myapp: {
                 options: {
@@ -11,44 +12,62 @@ module.exports = function(grunt) {
                     module: "csbux.directives.dts",
                 },
                 src: "templates/**/*.html",
-                dest: "build/dts-tpl.js"
+                dest: "build/csbux-tpl.js"
             }
         },
 
         // 2. Configuration for concatinating files goes here.
-        concat: {            
+        concat: {  
+           options: {
+                banner: '/*! <%= csbuxBanner %> */'
+                },    
             dist: {
                     src: [
                         "src/dts/csbux-dts.js",                        
-                        "build/dts-tpl.js"
+                        "build/csbux-tpl.js"
                     ],
-                    dest: 'build/csbux-dts.min.js',
+                    dest: 'build/csbux.min.js',
+                },
+            css: {
+                    src: [
+                        "src/**/*.css"
+                    ],
+                    dest: 'build/csbux.concat.css',
                 }
+
         },
         uglify : {
             options: {
-                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> Copyright (c) 2015 Cristian Birladeanu aka csbux */',
+                banner: '/*! <%= csbuxBanner %> */',
                 mangle: false
             },
             js: {
                 files: {
-                    'build/csbux-dts.min.js' : [ 'build/csbux-dts.min.js' ]
+                    'build/csbux.min.js' : [ 'build/csbux.min.js' ]
                 }
             }
         },
+        cssmin: {           
+            css: {
+                src: 'build/csbux.concat.css',
+                dest: 'build/csbux.min.css'
+            }
+        },    
         copy: {
           main: {
             files: [
               { src: 'src/dts/docs/index.html', dest:"build/index.html"},                            
-              { src: 'src/dts/docs/script.js', dest:"build/script.js"},                            
-              { src: 'src/dts/docs/dtsStyle.css', dest:"build/dtsStyle.css"},                            
+              { src: 'src/dts/docs/script.js', dest:"build/script.js"},                                          
               { src: 'src/dts/docs/templates/**', dest:"build/templates/", expand: true, flatten: true, filter:'isFile'},                            
+              { src: 'build/csbux.min.js', dest:"dist/csbux.min.js"},                            
+              { src: 'build/csbux.min.css', dest:"dist/csbux.min.css"},                            
             ],
           },
-        },
+        },           
         // Deletes all .js files, but skips min.js files 
         clean: {
-          js: ["build/*tpl.js"]
+          all: ["build", "dist"],
+          postBuild: ["build/*tpl.js", "build/*.concat.css"]
         }
 
     });
@@ -57,10 +76,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-angular-templates');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-copy');    
     grunt.loadNpmTasks('grunt-contrib-clean');
 
     // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-    grunt.registerTask('default', ['ngtemplates', 'concat', 'uglify', 'copy', 'clean']);
+    grunt.registerTask('default', ['clean:all', 'ngtemplates', 'concat', 'uglify', 'cssmin', 'copy', 'clean:postBuild']);
 
 };
