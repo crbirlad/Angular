@@ -2,7 +2,7 @@
 	<tab ng-repeat="tab in tabs | orderBy:'order'" active="tab.active">		
 		<tab-heading>				
 			<div>
-				<div dts-drop-object="true" x-on-drag="dragged(dragEl, dropEl)" id="{{$index}}" class="inlineDiv">
+				<div dts-drop-object="true" x-on-drag="dragged(dragEl, dropEl)" data-dtsId="{{$index}}" class="inlineDiv">
 					<span>{{tab.title}}</span>											
 				</div>
 				<div class="inlineDiv">
@@ -12,8 +12,8 @@
 					<a href="#" ng-click="tab.toRemove = true; removeTab()" ng-show="tabs.length > 1" class="iconSeparator" ng-hide="tab.isPlaceholder">
 						<span class="glyphicon glyphicon-remove"></span>										
 					</a>				
-					<a href="{{tab.title}}" ng-click="" ng-show="tabs.length > 1" class="iconSeparator" dts-draggable="true" id="{{$index}}" ng-hide="tab.isPlaceholder">
-						<span class="glyphicon glyphicon-align-justify"></span>										
+					<a href="{{tab.title}}" ng-click="" ng-show="tabs.length > 1" class="iconSeparator" dts-draggable="true" data-dtsId="{{$index}}" ng-hide="tab.isPlaceholder">
+						<span class="glyphicon glyphicon-transfer"></span>										
 					</a>
 				</div>				
 			</div>									

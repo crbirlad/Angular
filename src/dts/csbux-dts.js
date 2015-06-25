@@ -5,18 +5,17 @@ module.directive('dtsDraggable', ['$rootScope', function($rootScope) {
 	return {
 		restrict: 'A',
 		link: function(scope, el, attrs, controller) {			
-			angular.element(document).ready(function () {
-				if("addDynamicTab" != angular.element(el).attr("id")) {					
-					angular.element(el).attr("draggable", "true");
-				} 
+			angular.element(document).ready(function () {				
+				angular.element(el).attr("draggable", "true");
 
 				el.bind("dragstart", function(e) {
 					//get the ID of the tab being moved		
 					//Firefox workaround due to dragstart event not firing when drag component is a child of a link - which is always the case with the AngularUI Bootstrap component
 					//see http://forums.mozillazine.org/viewtopic.php?f=25&t=2822531 and http://stackoverflow.com/questions/23184362/firefox-dragstart-event-doesn-t-fire-in-hyperlink-s-children					
 					e.dataTransfer.effectAllowed = "move";
-					e.dataTransfer.setData('dragId', angular.element(el).attr("id"));
-					localStorage["dtsDragId"] = angular.element(el).attr("id");									
+					var dtsId = angular.element(el).attr("data-dtsId");
+					e.dataTransfer.setData('dragId', dtsId);
+					localStorage["dtsDragId"] = dtsId;									
 
 					$rootScope.$emit("DTS-START-DRAG");					
 				});
@@ -59,16 +58,16 @@ module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 					}
 
 					//if directly on the drop div
-					var newId = angular.element(e.target).attr("id");
+					var newId = angular.element(e.target).attr("data-dtsId");
 
 					//if on the plus span (add tab)
 					if(!newId) {
-						newId = angular.element(e.target).parent().attr("id");
+						newId = angular.element(e.target).parent().attr("data-dtsId");
 					}
 
 					//if on the tab title (any other tab)
 					if(!newId) {
-						newId = angular.element(e.target).parent().attr("id");
+						newId = angular.element(e.target).parent().attr("data-dtsId");
 					}
 
 					//DnD data not available in dragenter/dragleave/etc due to protected mode so we need to use the HTML5 Local Storage API
