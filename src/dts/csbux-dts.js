@@ -1,6 +1,28 @@
+/**
+ * @ngdoc overview
+ * @name csbux.directives.dts
+ *
+ * @description
+ * AngularJS version of a custom dynamic tab directive.
+ */
 'use strict'
 var module = angular.module('csbux.directives.dts', []);
 
+
+/**
+ * @ngdoc directive
+ * @name csbux.directives.dts:dtsDraggable
+ * @restrict A
+ *
+ * @description
+ * This directive provides HTML5 drag behaviour if set to true
+ *
+ *
+ * @example
+<a href="{{tab.title}}" ng-click="" ng-show="tabs.length > 1" class="iconSeparator" dts-draggable="true" data-dtsId="{{$index}}" ng-hide="tab.isPlaceholder">
+	<span class="glyphicon glyphicon-transfer"></span>										
+</a>
+ */
 module.directive('dtsDraggable', ['$rootScope', function($rootScope) {
 	return {
 		restrict: 'A',
@@ -29,6 +51,21 @@ module.directive('dtsDraggable', ['$rootScope', function($rootScope) {
 	}
 }]);
 
+/**
+ * @ngdoc directive
+ * @name csbux.directives.dts:dtsDropObject
+ * @restrict A
+ *
+ * @description
+ * This directive provides HTML5 drop behaviour if set to true
+ *
+ * @param {function=} onDrag Provide callback function for ondragevent.
+ *
+ * @example
+<div dts-drop-object="true" x-on-drag="dragged(dragEl, dropEl)" data-dtsId="{{$index}}" class="inlineDiv">
+	<span>{{tab.title}}</span>											
+</div>
+ */
 module.directive('dtsDropObject', ['$rootScope', function($rootScope) {
 	return {
 		restrict: 'A',
@@ -128,6 +165,22 @@ module.controller('ModalInstanceCtrl', ['$scope', '$modalInstance', 'tabs', 'new
 	};
 }]);
 
+
+/**
+ * @ngdoc directive
+ * @name csbux.directives.dts:csbuxDts
+ * @restrict E
+ *
+ * @description
+ * This directive builds and operates the tab structure
+ *
+ * @param {array=} tabs Provide data structure behind the tabs.
+ *
+ * @example
+<div ng-controller="MainCtrl">
+	<csbux-dts dts="tabsSample"></csbux-dts>
+</div>
+ */
 module.directive('csbuxDts', ['$sce', '$modal', function($sce, $modal) {
 	return {
 		restrict: 'E',		
