@@ -6,15 +6,15 @@
 					<span>{{tab.title}}</span>											
 				</div>
 				<div class="inlineDiv">
+					<a href="{{tab.title}}" ng-click="" ng-show="tabs.length > 1" class="iconSeparator" dts-draggable="true" data-dtsId="{{$index}}" ng-hide="tab.isPlaceholder">
+						<span class="glyphicon glyphicon-transfer"></span>										
+					</a>
 					<a href="#" ng-click="tab.toEdit = true; editTab()" class="iconSeparator" ng-hide="tab.isPlaceholder">
 						<span class="glyphicon glyphicon-edit"></span>										
 					</a>
 					<a href="#" ng-click="tab.toRemove = true; removeTab()" ng-show="tabs.length > 1" class="iconSeparator" ng-hide="tab.isPlaceholder">
 						<span class="glyphicon glyphicon-remove"></span>										
 					</a>				
-					<a href="{{tab.title}}" ng-click="" ng-show="tabs.length > 1" class="iconSeparator" dts-draggable="true" data-dtsId="{{$index}}" ng-hide="tab.isPlaceholder">
-						<span class="glyphicon glyphicon-transfer"></span>										
-					</a>
 				</div>				
 			</div>									
 		</tab-heading>
